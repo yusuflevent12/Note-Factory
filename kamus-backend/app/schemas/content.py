@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
-from ..models.content import ContentType
+from app.models.content import ContentType
 from .user import UserRead
 
 class CommentBase(BaseModel):

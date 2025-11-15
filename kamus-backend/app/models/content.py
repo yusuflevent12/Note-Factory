@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Enum, ForeignKey, Text
 from sqlalchemy.orm import relationship
-from ..db.base import Base
+from app.db.base import Base
 import enum
 
 class ContentType(str, enum.Enum):
@@ -11,9 +11,9 @@ class ContentType(str, enum.Enum):
 class Content(Base):
     __tablename__ = "contents"
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True, nullable=False)
+    title = Column(String(255), index=True, nullable=False)
     description = Column(Text)
-    file_path = Column(String, nullable=False)
+    file_path = Column(String(255), nullable=False)
     content_type = Column(Enum(ContentType), nullable=False)
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("User", back_populates="contents")
