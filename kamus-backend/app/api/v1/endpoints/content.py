@@ -2,11 +2,11 @@ from fastapi import APIRouter, Depends, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from typing import List
 from .. import schemas, services, models
-from ..db.session import get_db
-from ..core.security import create_access_token, verify_password
+from db.session import get_db
+from core.security import create_access_token, verify_password
 from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordBearer
-from ..core.config import settings
+from core.config import settings
 
 router = APIRouter()
 

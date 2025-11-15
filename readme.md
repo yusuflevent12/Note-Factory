@@ -1,12 +1,12 @@
-Proje: Kampüs Çekirdeği (KampusCekirdegi)
+Proje: Kampüs Çekirdeği (NoteFactory)
 Kampüs Çekirdeği, üniversite öğrencilerinin ders içeriklerine (slayt, çıkmış soru, not) tek bir yerden, organize bir şekilde erişmesini sağlayan ve bu içerikler etrafında bir topluluk oluşturmayı hedefleyen ölçeklenebilir bir SaaS platformudur.
 
 🚀 Projenin Misyonu ve Çözdüğü Sorun
-Üniversite öğrencilerinin en büyük "angaryası" ders materyallerini bulmaktır. İçerik; dağınık (WhatsApp, Google Drive), eksik ("hocanın slaytı yok"), kategorize edilmemiş ("bu vize mi final mi?") ve kalitesizdir.
+Üniversite öğrencilerinin en büyük "angaryası" ders materyallerini bulmaktır. Mevcut içerik; dağınık (WhatsApp, Google Drive), eksik ("hocanın slaytı yok", "kimse not tutmuyor"), kategorize edilmemiş ("bu vize mi final mi?") ve kalitesizdir.
 
 Kampüs Çekirdeği bu sorunu şu şekilde çözer:
 
-"Cold Start" (İlk Yükleme) Angaryasını Üstlenerek: Platform, kurucular tarafından manuel olarak yüklenen, "hiper-odaklı" (örn: Erciyes Yazılım 1-2-3. Sınıf) ve etiketlenmiş bir çekirdek içerik (slayt, çıkmış soru) ile başlar.
+"Cold Start" (İlk Yükleme) Angaryasını Üstlenerek: Platform, kurucular tarafından manuel olarak yüklenen, "hiper-odaklı" (örn: Erciyes Üni. Yazılım Bölümü) ve etiketlenmiş bir çekirdek içerik (slayt, çıkmış soru) ile başlar.
 
 Topluluk Motoru: Kullanıcıların (öğrencilerin) kendi içeriklerini yüklemesini, oylamasını ve tartışmasını sağlayarak platformun kendi kendini büyütmesini sağlar.
 
@@ -68,7 +68,7 @@ Kural: "Bunu nasıl otomatize ederim?" diye sormadan önce, "Bunu manuel olarak 
 
 Felsefe 2: Önce Kale, Sonra Dünya (Hiper-Odaklanma).
 
-Açıklama: "Herkes" için bir uygulama yapmaya çalışmak, hiç kimse için bir uygulama yapamamaktır. O "Aktivasyon" ve "Gürültü" duvarlarını aşmanın tek yolu, tek bir kaleyi (örn: Erciyes Yazılım 2. Sınıf veya tüm Erciyes Yazılım) mükemmel bir şekilde fethetmektir.
+Açıklama: "Herkes" için bir uygulama yapmaya çalışmak, hiç kimse için bir uygulama yapamamaktır. O "Aktivasyon" ve "Gürültü" duvarlarını aşmanın tek yolu, tek bir kaleyi (örn: Erciyes Yazılım Bölümü) mükemmel bir şekilde fethetmektir.
 
 Kural: O ilk kaleyi (niş pazarı) domine etmeden asla yeni bir üniversiteye, bölüme veya sınıfa "saldırma".
 
@@ -87,7 +87,7 @@ Kural: MVP (İlk Ürün) SADECE PDF ve JPEG/PNG kabul eder. Kullanıcı .docx mi
 📁 Backend (FastAPI) Dosya Yapısı
 Backend, temiz kod, test edilebilirlik ve ölçeklenebilirlik için tasarlanmış modüler bir FastAPI yapısı kullanır.
 
-/kampus-cekirdegi-backend
+/backend
 ├── /app                  # Ana Python paketi
 │   ├── /api              # API endpoint (URL) yönetimi
 │   │   ├── /v1           # API'nin 1. versiyonu (Gelecekte v2 eklemek için)
@@ -122,15 +122,17 @@ Backend, temiz kod, test edilebilirlik ve ölçeklenebilirlik için tasarlanmı�
 │   │
 │   └── main.py           # FastAPI uygulamasını başlatan, tüm bileşenleri (router, db) birleştiren ana dosya
 │
+├── /alembic              # Alembic veritabanı "migration" (taşıma) dosyaları
 ├── /tests                # Kodun çalıştığını doğrulayan testler
+├── .env                  # Veritabanı şifresi, API anahtarları gibi GİZLİ bilgiler (Git'e EKLENMEMELİ)
 ├── .env.example          # .env dosyasının nasıl görünmesi gerektiğine dair şablon
 ├── .gitignore            
-├── Dockerfile            
-└── requirements.txt      
+├── alembic.ini           # Alembic ayar dosyası
+└── requirements.txt      # Gerekli Python kütüphaneleri (fastapi, uvicorn, sqlalchemy, PyMySQL...)
 📂 Frontend (React) Dosya Yapısı
 Frontend, "feature-based" (özellik tabanlı) ve "component-based" (bileşen tabanlı) modern bir React (Vite ile) yapısı kullanır.
 
-/kampus-cekirdegi-frontend
+/frontend
 ├── /public                 # Doğrudan erişilen statik dosyalar (örn: favicon)
 ├── /src                    # Asıl React uygulama kodu
 │   ├── /api                # Backend ile konuşan tüm fonksiyonlar
@@ -161,7 +163,7 @@ Frontend, "feature-based" (özellik tabanlı) ve "component-based" (bileşen tab
 │   ├── App.jsx             # Ana 'Router' (React Router Dom) - Hangi URL'in hangi 'page'i göstereceğini belirler
 │   └── main.jsx            # React uygulamasını HTML'e bağlayan başlangıç dosyası
 │
-├── .env.example
+├── .env                    # (VITE_API_BASE_URL gibi) GİZLİ olmayan ayarlar
 ├── .gitignore
-├── package.json
-└── vite.config.js
+├── package.json            # Gerekli JavaScript kütüphaneleri (react, react-dom, axios, react-router-dom...)
+└── vite.config.js          # Vite için proje ayar dosyası
