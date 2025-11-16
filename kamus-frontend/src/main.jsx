@@ -1,15 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
 import App from './App';
-
-// (CSS importların varsa burada olmalı)
-// import './assets/styles/main.scss';
+import { AuthProvider } from './contexts/AuthContext';
+import './index.css'; // Tailwind CSS stillerini import et
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <AuthProvider>
       <App />
-    </BrowserRouter>
+    </AuthProvider>
   </React.StrictMode>
 );

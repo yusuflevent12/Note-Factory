@@ -1,0 +1,16 @@
+/**
+ * Bu dosya, projenin temel CSS'ini ve Tailwind CSS'in "direktiflerini" içerir.
+ * Vite build işlemi sırasında, bu direktifler Tailwind tarafından işlenerek
+ * projedeki tüm utility sınıflarını içeren tam bir CSS dosyasına dönüştürülür.
+ */
+
+/* Tailwind'in temel katmanlarını (base, components, utilities) import et */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Projeye özel ek global stiller buraya eklenebilir. */
+body {
+  font-family: 'Inter', sans-serif; /* Örnek bir modern font ailesi */
+  background-color: #f9fafb; /* Açık gri bir arka plan */
+}

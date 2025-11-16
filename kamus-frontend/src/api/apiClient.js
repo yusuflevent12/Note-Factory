@@ -1,17 +1,35 @@
 import axios from 'axios';
 
-// 1. .env dosyasından API adresini oku
-const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+// .env dosyasından backend'in temel URL'sini alıyoruz.
+// Vite, `VITE_` önekiyle başlayan ortam değişkenlerini otomatik olarak işler.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
-// 2. Ana Axios "istemcisini" (client) oluştur
 const apiClient = axios.create({
-  baseURL: VITE_API_BASE_URL,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// 3. (Gelecekte Login olunca) Token'ı otomatik ekleme
-// apiClient.interceptors.request.use( (config) => { ... } );
+// API istemcisine bir "interceptor" (araya girici) ekliyoruz.
+// Bu, her istek gönderilmeden hemen önce çalışacak bir fonksiyondur.
+apiClient.interceptors.request.use(
+  (config) => {
+    // Tarayıcının yerel depolamasından (localStorage) token'ı alıyoruz.
+    const token = localStorage.getItem('authToken');
+
+    // Eğer token varsa, isteğin 'Authorization' başlığına ekliyoruz.
+    // Backend bu başlığı okuyarak kullanıcının kimliğini doğrulayacak.
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return config; // Değiştirilmiş config'i isteğe devam etmesi için geri döndürüyoruz.
+  },
+  (error) => {
+    // İstek yapılandırmasında bir hata olursa, bu hatayı Promise.reject ile reddediyoruz.
+    return Promise.reject(error);
+  }
+);
 
 export default apiClient;
