@@ -29,7 +29,6 @@ class ContentService {
       final fileName = file.path.split('/').last;
       final formData = FormData.fromMap({
         'title': title,
-        'description': description ?? '',
         'content_type': contentType.value,
         'course_id': courseId,
         'file': await MultipartFile.fromFile(
@@ -39,25 +38,25 @@ class ContentService {
       });
 
       final response = await _dioClient.dio.post(
-        '/content/',
+        '/content/upload/',
         data: formData,
       );
 
       return ContentModel.fromJson(response.data);
     } on DioException catch (e) {
       if (e.response?.statusCode == 400) {
-        throw Exception('Geçersiz dosya formatı. Sadece PDF ve JPEG/PNG kabul edilir.');
+        throw Exception('Geçersiz dosya formatı. Sadece PDF kabul edilir.');
       }
       throw Exception('İçerik yüklenirken hata oluştu: ${e.message}');
     }
   }
 
-  String getContentUrl(String filePath) {
-    // Backend'den gelen file_path'i tam URL'ye çevir
-    if (filePath.startsWith('http')) {
-      return filePath;
+  String getContentUrl(String fileUrl) {
+    // Backend'den gelen file_url'i tam URL'ye çevir
+    if (fileUrl.startsWith('http')) {
+      return fileUrl;
     }
-    return '${AppConstants.baseUrl}$filePath';
+    return '${AppConstants.baseUrl}$fileUrl';
   }
 }
 

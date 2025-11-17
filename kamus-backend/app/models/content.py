@@ -13,7 +13,7 @@ class Content(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(255), index=True, nullable=False)
     description = Column(Text)
-    file_path = Column(String(255), nullable=False)
+    file_url = Column(String(255), nullable=False)
     content_type = Column(Enum(ContentType), nullable=False)
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("User", back_populates="contents")

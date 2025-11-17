@@ -4,6 +4,7 @@ import '../screens/register_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/course_detail_screen.dart';
 import '../screens/content_view_screen.dart';
+import '../screens/upload_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/login',
@@ -22,6 +23,11 @@ final GoRouter appRouter = GoRouter(
       path: '/home',
       name: 'home',
       builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: '/upload',
+      name: 'upload',
+      builder: (context, state) => const UploadScreen(),
     ),
     GoRoute(
       path: '/course/:courseId',

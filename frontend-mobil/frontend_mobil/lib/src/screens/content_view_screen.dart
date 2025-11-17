@@ -60,7 +60,7 @@ class _ContentViewScreenState extends ConsumerState<ContentViewScreen> {
       });
 
       // PDF'i yükle
-      await _loadPdf(content.filePath);
+      await _loadPdf(content.fileUrl);
       
       setState(() {
         _isLoading = false;
@@ -73,15 +73,15 @@ class _ContentViewScreenState extends ConsumerState<ContentViewScreen> {
     }
   }
 
-  Future<void> _loadPdf(String filePath) async {
+  Future<void> _loadPdf(String fileUrl) async {
     try {
       final contentService = ContentService();
       final dio = DioClient().dio;
-      final url = contentService.getContentUrl(filePath);
+      final url = contentService.getContentUrl(fileUrl);
       
       // PDF'i geçici dizine indir (sadece görüntüleme için, kullanıcı indiremez)
       final tempDir = await getTemporaryDirectory();
-      final fileName = filePath.split('/').last;
+      final fileName = fileUrl.split('/').last;
       final localFile = File('${tempDir.path}/$fileName');
 
       await dio.download(url, localFile.path);

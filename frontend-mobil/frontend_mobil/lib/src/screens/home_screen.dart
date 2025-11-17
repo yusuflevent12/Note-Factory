@@ -82,12 +82,7 @@ class HomeScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: İçerik yükleme ekranını aç
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('İçerik yükleme özelliği yakında eklenecek'),
-            ),
-          );
+          context.push('/upload');
         },
         tooltip: 'İçerik Yükle',
         child: const Icon(Icons.add),

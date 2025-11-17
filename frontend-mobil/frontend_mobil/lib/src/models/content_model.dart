@@ -88,7 +88,7 @@ class ContentModel {
   final String title;
   final String? description;
   final ContentType contentType;
-  final String filePath;
+  final String fileUrl;
   final UserModel owner;
   final List<CommentModel> comments;
   final List<VoteModel> votes;
@@ -98,7 +98,7 @@ class ContentModel {
     required this.title,
     this.description,
     required this.contentType,
-    required this.filePath,
+    required this.fileUrl,
     required this.owner,
     this.comments = const [],
     this.votes = const [],
@@ -112,7 +112,7 @@ class ContentModel {
       contentType: ContentTypeExtension.fromString(
         json['content_type'] as String,
       ),
-      filePath: json['file_path'] as String,
+      fileUrl: json['file_url'] as String,
       owner: UserModel.fromJson(json['owner'] as Map<String, dynamic>),
       comments: (json['comments'] as List<dynamic>?)
               ?.map((e) => CommentModel.fromJson(e as Map<String, dynamic>))

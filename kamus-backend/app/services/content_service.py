@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 import os
 from fastapi import UploadFile
 
@@ -15,8 +15,13 @@ if not os.path.exists(UPLOAD_DIRECTORY):
 # 'models.content.Content' (Kiler Defteri) KULLAN
 #
 def get_content_by_course(db: Session, course_id: int, skip: int = 0, limit: int = 100):
-    # HATA TAM OLARAK BU SATIRDAYDI:
+    # Eager loading ile owner, comments, votes relationships'lerini yükle
     return db.query(mcontent.Content)\
+             .options(
+                 joinedload(mcontent.Content.owner),
+                 joinedload(mcontent.Content.comments).joinedload("owner"),
+                 joinedload(mcontent.Content.votes).joinedload("owner")
+             )\
              .filter(mcontent.Content.course_id == course_id)\
              .offset(skip)\
              .limit(limit)\
@@ -44,4 +49,11 @@ async def create_content(db: Session, content_in: content.ContentCreate, owner_i
     db.add(db_content)
     db.commit()
     db.refresh(db_content)
+    
+    # Owner'ı eager load et
+    db_content = db.query(mcontent.Content)\
+                   .options(joinedload(mcontent.Content.owner))\
+                   .filter(mcontent.Content.id == db_content.id)\
+                   .first()
+    
     return db_content

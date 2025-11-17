@@ -28,6 +28,7 @@ class Course(Base):
     __tablename__ = "courses"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), index=True, nullable=False)
+    course_code = Column(String(50), nullable=True)
     department_id = Column(Integer, ForeignKey("departments.id"))
     department = relationship("Department", back_populates="courses")
     contents = relationship("Content", back_populates="course")

@@ -13,8 +13,7 @@ class CommentRead(CommentBase):
     id: int
     owner: UserRead
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 class VoteBase(BaseModel):
     value: int
@@ -26,8 +25,7 @@ class VoteRead(VoteBase):
     id: int
     owner: UserRead
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 class ContentBase(BaseModel):
     title: str
@@ -39,10 +37,9 @@ class ContentCreate(ContentBase):
 
 class ContentRead(ContentBase):
     id: int
-    file_path: str
+    file_url: str
     owner: UserRead
     comments: List[CommentRead] = []
     votes: List[VoteRead] = []
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}

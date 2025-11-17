@@ -15,8 +15,7 @@ class CourseRead(CourseBase):
     id: int
     
     # SQLAlchemy'nin ilişkiyi otomatik olarak okuması için
-    class Config:
-        orm_mode = True 
+    model_config = {"from_attributes": True} 
 
 # --- Department (Bölüm) Şemaları ---
 
@@ -32,8 +31,7 @@ class DepartmentRead(DepartmentBase):
     # Bir bölüm okunduğunda, içindeki dersleri de (CourseRead) listele
     courses: List[CourseRead] = []
     
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 # --- Faculty (Fakülte) Şemaları ---
 
@@ -49,8 +47,7 @@ class FacultyRead(FacultyBase):
     # Bir fakülte okunduğunda, içindeki bölümleri de (DepartmentRead) listele
     departments: List[DepartmentRead] = []
     
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 # --- University (Üniversite) Şemaları ---
 
@@ -65,5 +62,4 @@ class UniversityRead(UniversityBase):
     # Bir üniversite okunduğunda, içindeki fakülteleri de (FacultyRead) listele
     faculties: List[FacultyRead] = []
     
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
