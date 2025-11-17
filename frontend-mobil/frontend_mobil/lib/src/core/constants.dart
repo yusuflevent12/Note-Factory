@@ -1,7 +1,7 @@
 class AppConstants {
   // API Base URL - Android emulator için localhost
   // Gerçek cihazda kullanmak için bilgisayarın IP adresini kullanın
-  static const String baseUrl = 'http://192.168.1.79:8000';
+  static const String baseUrl = 'http://10.0.2.2:8000';
   static const String apiBaseUrl = '$baseUrl/api/v1';
 
   // Storage Keys
