@@ -1,58 +1,61 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
-import '../models/user_model.dart';
+import '../models/content_model.dart';
+import '../core/constants.dart';
 import 'dio_client.dart';
 
-class AuthService {
+class ContentService {
   final DioClient _dioClient = DioClient();
 
-  Future<TokenResponse> login(String email, String password) async {
+  Future<List<ContentModel>> getContentForCourse(int courseId) async {
     try {
+      final response = await _dioClient.get('/content/$courseId');
+      final data = response.data;
+      if (data is List) {
+        return data
+            .map((json) => ContentModel.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
+    } on DioException catch (e) {
+      throw Exception('İçerikler yüklenirken hata oluştu: ${e.message}');
+    }
+  }
+
+  Future<ContentModel> uploadContent({
+    required String title,
+    String? description,
+    required ContentType contentType,
+    required int courseId,
+    required File file,
+  }) async {
+    try {
+      final fileName = file.path.split('/').last;
       final formData = FormData.fromMap({
-        'username': email, // OAuth2PasswordRequestForm uses 'username' field
-        'password': password,
+        'title': title,
+        'description': description ?? '',
+        'content_type': contentType.value,
+        'course_id': courseId,
+        'file': await MultipartFile.fromFile(
+          file.path,
+          filename: fileName,
+        ),
       });
 
-      final response = await _dioClient.dio.post(
-        '/auth/token',
-        data: formData,
-      );
-
-      final tokenResponse = TokenResponse.fromJson(response.data);
-      await _dioClient.setAuthToken(tokenResponse.accessToken);
-      return tokenResponse;
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw Exception('E-posta veya şifre hatalı');
-      }
-      throw Exception('Giriş yapılırken bir hata oluştu: ${e.message}');
-    } catch (e) {
-      throw Exception('Giriş yapılırken bir hata oluştu: $e');
-    }
-  }
-
-  Future<UserModel> register(String email, String password) async {
-    try {
-      final response = await _dioClient.dio.post(
-        '/auth/register',
-        data: {
-          'email': email,
-          'password': password,
-        },
-      );
-
-      return UserModel.fromJson(response.data);
+      final response = await _dioClient.post('/content/', data: formData);
+      return ContentModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       if (e.response?.statusCode == 400) {
-        throw Exception('Bu e-posta adresi zaten kullanılıyor');
+        throw Exception('Geçersiz dosya formatı. Sadece PDF ve JPEG/PNG kabul edilir.');
       }
-      throw Exception('Kayıt olurken bir hata oluştu: ${e.message}');
-    } catch (e) {
-      throw Exception('Kayıt olurken bir hata oluştu: $e');
+      throw Exception('İçerik yüklenirken hata oluştu: ${e.message}');
     }
   }
 
-  Future<void> logout() async {
-    await _dioClient.clearAuthToken();
+  String getContentUrl(String filePath) {
+    if (filePath.startsWith('http')) {
+      return filePath;
+    }
+    return '${AppConstants.baseUrl}$filePath';
   }
 }
-

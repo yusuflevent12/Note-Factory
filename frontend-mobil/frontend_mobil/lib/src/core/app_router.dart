@@ -4,7 +4,6 @@ import '../screens/register_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/course_detail_screen.dart';
 import '../screens/content_view_screen.dart';
-import '../screens/upload_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/login',
@@ -25,15 +24,11 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const HomeScreen(),
     ),
     GoRoute(
-      path: '/upload',
-      name: 'upload',
-      builder: (context, state) => const UploadScreen(),
-    ),
-    GoRoute(
       path: '/course/:courseId',
       name: 'course-detail',
       builder: (context, state) {
-        final courseId = int.parse(state.pathParameters['courseId']!);
+        final courseIdStr = state.pathParameters['courseId'];
+        final courseId = courseIdStr != null ? int.tryParse(courseIdStr) ?? 0 : 0;
         return CourseDetailScreen(courseId: courseId);
       },
     ),
@@ -41,14 +36,13 @@ final GoRouter appRouter = GoRouter(
       path: '/content/:contentId',
       name: 'content-view',
       builder: (context, state) {
-        final contentId = int.parse(state.pathParameters['contentId']!);
+        final contentId = int.tryParse(state.pathParameters['contentId'] ?? '') ?? 0;
         final courseId = state.uri.queryParameters['courseId'];
         return ContentViewScreen(
           contentId: contentId,
-          courseId: courseId != null ? int.parse(courseId) : null,
+          courseId: courseId != null ? int.tryParse(courseId) : null,
         );
       },
     ),
   ],
 );
-

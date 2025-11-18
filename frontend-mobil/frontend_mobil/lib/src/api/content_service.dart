@@ -9,10 +9,14 @@ class ContentService {
 
   Future<List<ContentModel>> getContentForCourse(int courseId) async {
     try {
-      final response = await _dioClient.dio.get('/content/$courseId');
-      return (response.data as List)
-          .map((json) => ContentModel.fromJson(json as Map<String, dynamic>))
-          .toList();
+      final response = await _dioClient.get('/content/$courseId');
+      final data = response.data;
+      if (data is List) {
+        return data
+            .map((json) => ContentModel.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
     } on DioException catch (e) {
       throw Exception('İçerikler yüklenirken hata oluştu: ${e.message}');
     }
@@ -29,6 +33,7 @@ class ContentService {
       final fileName = file.path.split('/').last;
       final formData = FormData.fromMap({
         'title': title,
+        'description': description ?? '',
         'content_type': contentType.value,
         'course_id': courseId,
         'file': await MultipartFile.fromFile(
@@ -37,26 +42,20 @@ class ContentService {
         ),
       });
 
-      final response = await _dioClient.dio.post(
-        '/content/upload/',
-        data: formData,
-      );
-
-      return ContentModel.fromJson(response.data);
+      final response = await _dioClient.post('/content/', data: formData);
+      return ContentModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       if (e.response?.statusCode == 400) {
-        throw Exception('Geçersiz dosya formatı. Sadece PDF kabul edilir.');
+        throw Exception('Geçersiz dosya formatı. Sadece PDF ve JPEG/PNG kabul edilir.');
       }
       throw Exception('İçerik yüklenirken hata oluştu: ${e.message}');
     }
   }
 
-  String getContentUrl(String fileUrl) {
-    // Backend'den gelen file_url'i tam URL'ye çevir
-    if (fileUrl.startsWith('http')) {
-      return fileUrl;
+  String getContentUrl(String filePath) {
+    if (filePath.startsWith('http')) {
+      return filePath;
     }
-    return '${AppConstants.baseUrl}$fileUrl';
+    return '${AppConstants.baseUrl}$filePath';
   }
 }
-

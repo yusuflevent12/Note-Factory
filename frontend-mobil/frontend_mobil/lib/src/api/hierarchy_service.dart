@@ -1,46 +1,29 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frontend_mobil/src/api/dio_client.dart';
-import 'package:frontend_mobil/src/models/course_model.dart';
-// Diğer model importları (University, Department)
-// ...
-
-final hierarchyServiceProvider = Provider((ref) {
-  final dio = ref.watch(dioProvider);
-  return HierarchyService(dio);
-});
+import '../models/course_model.dart';
+import 'dio_client.dart';
 
 class HierarchyService {
-  final Dio _dio;
-  HierarchyService(this._dio);
+  final DioClient _client = DioClient();
 
-  // Mevcut ders listesi fonksiyonu
-  Future<List<Course>> getCourses(int departmentId) async {
-    try {
-      final response = await _dio.get('/api/v1/hierarchy/courses/$departmentId');
-      List<dynamic> data = response.data;
-      return data.map((json) => Course.fromJson(json)).toList();
-    } catch (e) {
-      // Hata yönetimi
-      rethrow;
+  Future<List<CourseModel>> getCourses(int departmentId) async {
+    final resp = await _client.get('/departments/$departmentId/courses');
+    final data = resp.data;
+    if (data is List) {
+      return data
+          .map((j) => CourseModel.fromJson(j as Map<String, dynamic>))
+          .toList();
     }
+    return [];
   }
 
-  //
-  // EKSİK OLAN FONKSİYON (YENİ EKLENDİ):
-  //
-  Future<Course> getCourseDetail(String courseId) async {
-    try {
-      // Backend'e (hierarchy.py) eklediğimiz yeni endpoint'i çağır
-      final response = await _dio.get('/api/v1/hierarchy/course/$courseId');
-      // Dönen JSON verisini Course modeline çevir
-      return Course.fromJson(response.data);
-    } catch (e) {
-      print('Kurs detayı alınırken hata: $e');
-      rethrow;
-    }
+  // Düzeltildi: parametre ve dönüş tipi CourseModel (int parametre)
+  Future<CourseModel> getCourseDetail(int courseId) async {
+    final resp = await _client.get('/courses/$courseId');
+    return CourseModel.fromJson(resp.data as Map<String, dynamic>);
   }
 
-  // Diğer hiyerarşi fonksiyonları (getUniversities, getDepartments) buraya eklenebilir
-  // ...
+  Future<List<dynamic>> getUniversities() async {
+    final resp = await _client.get('/hierarchy/universities');
+    return resp.data as List;
+  }
 }
