@@ -1,69 +1,43 @@
 import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../core/constants.dart';
 
 class DioClient {
-  late Dio _dio;
-  static final DioClient _instance = DioClient._internal();
+  final Dio dio;
 
-  factory DioClient() {
-    return _instance;
-  }
-
-  DioClient._internal() {
-    _dio = Dio(
-      BaseOptions(
-        baseUrl: AppConstants.apiBaseUrl,
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 30),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      ),
-    );
-
-    // Interceptor to add auth token to requests
-    _dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) async {
-          final prefs = await SharedPreferences.getInstance();
-          final token = prefs.getString(AppConstants.tokenKey);
-          if (token != null) {
-            options.headers['Authorization'] = 'Bearer $token';
+  DioClient({String baseUrl = 'http://10.0.2.2:8000/api/v1'})
+      : dio = Dio(BaseOptions(
+          baseUrl: baseUrl,
+          connectTimeout: 10000,
+          receiveTimeout: 10000,
+          responseType: ResponseType.json,
+        )) {
+    dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        // Token eklemek gerekiyorsa burada yapın
+        return handler.next(options);
+      },
+      onResponse: (response, handler) {
+        return handler.next(response);
+      },
+      onError: (DioError e, handler) {
+        // 500 gibi server hatalarını burada yakala ve anlamlı hale getir
+        if (e.response != null && e.response?.statusCode != null) {
+          final code = e.response!.statusCode!;
+          if (code >= 500) {
+            return handler.reject(DioError(
+              requestOptions: e.requestOptions,
+              error: 'Sunucu hatası (500+) — lütfen daha sonra tekrar deneyin.',
+              type: e.type,
+              response: e.response,
+            ));
           }
-          return handler.next(options);
-        },
-        onError: (error, handler) {
-          if (error.response?.statusCode == 401) {
-            // Token expired or invalid - handle logout
-            _clearToken();
-          }
-          return handler.next(error);
-        },
-      ),
-    );
+        }
+        return handler.next(e);
+      },
+    ));
   }
 
-  Future<void> _clearToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(AppConstants.tokenKey);
-    await prefs.remove(AppConstants.userEmailKey);
-  }
+  Future<Response> get(String path, {Map<String, dynamic>? queryParameters}) =>
+      dio.get(path, queryParameters: queryParameters);
 
-  Dio get dio => _dio;
-
-  Future<void> setAuthToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(AppConstants.tokenKey, token);
-  }
-
-  Future<void> clearAuthToken() async {
-    await _clearToken();
-  }
-
-  Future<String?> getAuthToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(AppConstants.tokenKey);
-  }
+  Future<Response> post(String path, {data}) => dio.post(path, data: data);
 }
-
