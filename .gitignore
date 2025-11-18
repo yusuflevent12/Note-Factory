@@ -1,0 +1,18 @@
+# Virtual environments
+kamus-backend/venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.local
+
+# Flutter / Dart
+frontend-mobil/frontend_mobil/.dart_tool/
+frontend-mobil/frontend_mobil/build/
+frontend-mobil/frontend_mobil/.packages
+
+# Editor
+.vscode/
