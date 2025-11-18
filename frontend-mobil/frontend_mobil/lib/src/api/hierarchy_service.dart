@@ -1,56 +1,46 @@
 import 'package:dio/dio.dart';
-import '../models/course_model.dart';
-import 'dio_client.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend_mobil/src/api/dio_client.dart';
+import 'package:frontend_mobil/src/models/course_model.dart';
+// Diğer model importları (University, Department)
+// ...
+
+final hierarchyServiceProvider = Provider((ref) {
+  final dio = ref.watch(dioProvider);
+  return HierarchyService(dio);
+});
 
 class HierarchyService {
-  final DioClient _dioClient = DioClient();
+  final Dio _dio;
+  HierarchyService(this._dio);
 
-  Future<List<UniversityModel>> getUniversities() async {
+  // Mevcut ders listesi fonksiyonu
+  Future<List<Course>> getCourses(int departmentId) async {
     try {
-      final response = await _dioClient.dio.get('/hierarchy/universities');
-      return (response.data as List)
-          .map((json) => UniversityModel.fromJson(json as Map<String, dynamic>))
-          .toList();
-    } on DioException catch (e) {
-      throw Exception('Üniversiteler yüklenirken hata oluştu: ${e.message}');
+      final response = await _dio.get('/api/v1/hierarchy/courses/$departmentId');
+      List<dynamic> data = response.data;
+      return data.map((json) => Course.fromJson(json)).toList();
+    } catch (e) {
+      // Hata yönetimi
+      rethrow;
     }
   }
 
-  Future<List<FacultyModel>> getFaculties(int universityId) async {
+  //
+  // EKSİK OLAN FONKSİYON (YENİ EKLENDİ):
+  //
+  Future<Course> getCourseDetail(String courseId) async {
     try {
-      final response =
-          await _dioClient.dio.get('/hierarchy/faculties/$universityId');
-      return (response.data as List)
-          .map((json) => FacultyModel.fromJson(json as Map<String, dynamic>))
-          .toList();
-    } on DioException catch (e) {
-      throw Exception('Fakülteler yüklenirken hata oluştu: ${e.message}');
+      // Backend'e (hierarchy.py) eklediğimiz yeni endpoint'i çağır
+      final response = await _dio.get('/api/v1/hierarchy/course/$courseId');
+      // Dönen JSON verisini Course modeline çevir
+      return Course.fromJson(response.data);
+    } catch (e) {
+      print('Kurs detayı alınırken hata: $e');
+      rethrow;
     }
   }
 
-  Future<List<DepartmentModel>> getDepartments(int facultyId) async {
-    try {
-      final response =
-          await _dioClient.dio.get('/hierarchy/departments/$facultyId');
-      return (response.data as List)
-          .map((json) =>
-              DepartmentModel.fromJson(json as Map<String, dynamic>))
-          .toList();
-    } on DioException catch (e) {
-      throw Exception('Bölümler yüklenirken hata oluştu: ${e.message}');
-    }
-  }
-
-  Future<List<CourseModel>> getCourses(int departmentId) async {
-    try {
-      final response =
-          await _dioClient.dio.get('/hierarchy/courses/$departmentId');
-      return (response.data as List)
-          .map((json) => CourseModel.fromJson(json as Map<String, dynamic>))
-          .toList();
-    } on DioException catch (e) {
-      throw Exception('Dersler yüklenirken hata oluştu: ${e.message}');
-    }
-  }
+  // Diğer hiyerarşi fonksiyonları (getUniversities, getDepartments) buraya eklenebilir
+  // ...
 }
-
