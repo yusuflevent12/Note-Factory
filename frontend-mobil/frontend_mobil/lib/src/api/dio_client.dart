@@ -2,24 +2,26 @@ import 'package:dio/dio.dart';
 
 class DioClient {
   final Dio dio;
+  String? _token;
 
   DioClient({String baseUrl = 'http://10.0.2.2:8000/api/v1'})
       : dio = Dio(BaseOptions(
           baseUrl: baseUrl,
-          connectTimeout: 10000,
-          receiveTimeout: 10000,
+          connectTimeout: const Duration(milliseconds: 10000),
+          receiveTimeout: const Duration(milliseconds: 10000),
           responseType: ResponseType.json,
         )) {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
-        // Token eklemek gerekiyorsa burada yapın
+        if (_token != null && _token!.isNotEmpty) {
+          options.headers['Authorization'] = 'Bearer $_token';
+        }
         return handler.next(options);
       },
       onResponse: (response, handler) {
         return handler.next(response);
       },
       onError: (DioError e, handler) {
-        // 500 gibi server hatalarını burada yakala ve anlamlı hale getir
         if (e.response != null && e.response?.statusCode != null) {
           final code = e.response!.statusCode!;
           if (code >= 500) {
@@ -34,6 +36,19 @@ class DioClient {
         return handler.next(e);
       },
     ));
+  }
+
+  void setAuthToken(String? token) {
+    _token = token;
+    if (token != null && token.isNotEmpty) {
+      dio.options.headers['Authorization'] = 'Bearer $token';
+    } else {
+      dio.options.headers.remove('Authorization');
+    }
+  }
+
+  void clearAuthToken() {
+    setAuthToken(null);
   }
 
   Future<Response> get(String path, {Map<String, dynamic>? queryParameters}) =>
