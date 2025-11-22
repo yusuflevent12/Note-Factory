@@ -1,11 +1,12 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
+// import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
 import '../api/content_service.dart';
 import '../api/dio_client.dart';
 import '../models/content_model.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+// import 'dart:io' as io; // REMOVED for Web compatibility
 
 class ContentViewScreen extends ConsumerStatefulWidget {
   final int contentId;
@@ -26,9 +27,9 @@ class _ContentViewScreenState extends ConsumerState<ContentViewScreen> {
   bool _isLoading = true;
   String? _error;
   String? _localFilePath;
-  PDFViewController? _pdfViewController;
-  int _currentPage = 0;
-  int _totalPages = 0;
+  // PDFViewController? _pdfViewController;
+  final int _currentPage = 0;
+  final int _totalPages = 0;
 
   @override
   void initState() {
@@ -60,11 +61,14 @@ class _ContentViewScreenState extends ConsumerState<ContentViewScreen> {
       });
 
       // PDF'i yükle
-      await _loadPdf(content.fileUrl);
+      if (!kIsWeb) {
+        await _loadPdf(content.fileUrl);
+      } else {
+         setState(() {
+          _isLoading = false;
+        });
+      }
       
-      setState(() {
-        _isLoading = false;
-      });
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -75,6 +79,7 @@ class _ContentViewScreenState extends ConsumerState<ContentViewScreen> {
 
   Future<void> _loadPdf(String fileUrl) async {
     try {
+      /*
       final contentService = ContentService();
       final dio = DioClient().dio;
       final url = contentService.getContentUrl(fileUrl);
@@ -82,13 +87,22 @@ class _ContentViewScreenState extends ConsumerState<ContentViewScreen> {
       // PDF'i geçici dizine indir (sadece görüntüleme için, kullanıcı indiremez)
       final tempDir = await getTemporaryDirectory();
       final fileName = fileUrl.split('/').last;
-      final localFile = File('${tempDir.path}/$fileName');
+      final localFile = io.File('${tempDir.path}/$fileName');
 
       await dio.download(url, localFile.path);
 
       if (mounted) {
         setState(() {
           _localFilePath = localFile.path;
+          _isLoading = false;
+        });
+      }
+      */
+      // Placeholder for mobile implementation
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _error = "PDF görüntüleme şu an devre dışı.";
         });
       }
     } catch (e) {
@@ -129,62 +143,28 @@ class _ContentViewScreenState extends ConsumerState<ContentViewScreen> {
       );
     }
 
-    if (_localFilePath == null) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: _content != null
             ? Text(_content!.title)
             : const Text('İçerik'),
-        actions: [
-          if (_totalPages > 0)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  '$_currentPage / $_totalPages',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-        ],
       ),
-      body: PDFView(
-        filePath: _localFilePath!,
-        enableSwipe: true,
-        swipeHorizontal: false,
-        autoSpacing: false,
-        pageFling: true,
-        onRender: (pages) {
-          setState(() {
-            _totalPages = pages ?? 0;
-          });
-        },
-        onError: (error) {
-          setState(() {
-            _error = error.toString();
-          });
-        },
-        onPageError: (page, error) {
-          setState(() {
-            _error = 'Sayfa $page yüklenirken hata: $error';
-          });
-        },
-        onViewCreated: (PDFViewController pdfViewController) {
-          _pdfViewController = pdfViewController;
-        },
-        onPageChanged: (int? page, int? total) {
-          setState(() {
-            _currentPage = page ?? 0;
-            _totalPages = total ?? 0;
-          });
-        },
+      body: Center(
+        child: kIsWeb 
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('PDF görüntüleme web üzerinde henüz desteklenmemektedir.'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    // TODO: İndirme veya yeni sekmede açma
+                  }, 
+                  child: const Text('İndir / Aç')
+                )
+              ],
+            )
+          : const Text('PDF Görüntüleyici Devre Dışı (Web Uyumluluğu İçin)'),
       ),
       bottomNavigationBar: _content != null
           ? Container(
@@ -205,7 +185,6 @@ class _ContentViewScreenState extends ConsumerState<ContentViewScreen> {
                   IconButton(
                     icon: const Icon(Icons.thumb_up),
                     onPressed: () {
-                      // TODO: Upvote işlevi
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Beğeni özelliği yakında eklenecek'),
@@ -217,7 +196,6 @@ class _ContentViewScreenState extends ConsumerState<ContentViewScreen> {
                   IconButton(
                     icon: const Icon(Icons.thumb_down),
                     onPressed: () {
-                      // TODO: Downvote işlevi
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Beğenmeme özelliği yakında eklenecek'),
@@ -228,7 +206,6 @@ class _ContentViewScreenState extends ConsumerState<ContentViewScreen> {
                   IconButton(
                     icon: const Icon(Icons.comment),
                     onPressed: () {
-                      // TODO: Yorumlar ekranı
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Yorumlar özelliği yakında eklenecek'),

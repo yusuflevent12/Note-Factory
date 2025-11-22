@@ -5,8 +5,6 @@ import 'package:frontend_mobil/src/widgets/common/loading_spinner.dart';
 import 'package:frontend_mobil/src/widgets/content_card.dart';
 import 'package:go_router/go_router.dart';
 
-// Sayfa içi durum (state) yönetimine gerek kalmadığı için
-// ConsumerStatefulWidget'tan ConsumerWidget'a dönüştürüldü.
 class CourseDetailScreen extends ConsumerWidget {
   final String courseId;
   const CourseDetailScreen({super.key, required this.courseId});
@@ -20,11 +18,10 @@ class CourseDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         // Başlığı kurs verisine göre ayarla
         title: courseDetailAsyncValue.when(
-          data: (course) => Text(course.title),
+          data: (course) => Text(course.name),
           loading: () => const Text('Yükleniyor...'),
           error: (err, stack) => const Text('Hata'),
         ),
-        // Özel geri tuşuna gerek yok, GoRouter bunu halleder.
       ),
       body: courseDetailAsyncValue.when(
         data: (course) {
@@ -44,14 +41,14 @@ class CourseDetailScreen extends ConsumerWidget {
                   return ContentCard(
                     content: content,
                     onTap: () {
-                      // Burası GÜNCELLENDİ:
-                      // Tıklandığında artık sayfa içi state ayarlamak yerine
-                      // GoRouter ile 'contentView' rotasına yönlendirme yapılıyor.
                       context.goNamed(
-                        'contentView',
+                        'content-view', // Corrected route name from 'contentView' to 'content-view'
                         pathParameters: {
                           'courseId': courseId,
-                          'contentId': content.id,
+                          'contentId': content.id.toString(),
+                        },
+                        queryParameters: {
+                          'courseId': courseId,
                         },
                       );
                     },

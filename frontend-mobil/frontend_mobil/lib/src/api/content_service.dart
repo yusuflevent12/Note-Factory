@@ -1,5 +1,5 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import '../models/content_model.dart';
 import '../core/constants.dart';
 import 'dio_client.dart';
@@ -27,18 +27,17 @@ class ContentService {
     String? description,
     required ContentType contentType,
     required int courseId,
-    required File file,
+    required PlatformFile file,
   }) async {
     try {
-      final fileName = file.path.split('/').last;
       final formData = FormData.fromMap({
         'title': title,
         'description': description ?? '',
         'content_type': contentType.value,
         'course_id': courseId,
-        'file': await MultipartFile.fromFile(
-          file.path,
-          filename: fileName,
+        'file': MultipartFile.fromBytes(
+          file.bytes!,
+          filename: file.name,
         ),
       });
 

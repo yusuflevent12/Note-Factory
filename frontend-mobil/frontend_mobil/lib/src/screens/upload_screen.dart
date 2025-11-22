@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
@@ -22,7 +21,7 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
   
   int? _selectedCourseId;
   ContentType _selectedContentType = ContentType.lectureNote;
-  File? _selectedFile;
+  PlatformFile? _selectedFile;
   bool _isLoading = false;
 
   @override
@@ -35,11 +34,12 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
+      withData: true, // Important for Web to get bytes
     );
 
-    if (result != null && result.files.single.path != null) {
+    if (result != null) {
       setState(() {
-        _selectedFile = File(result.files.single.path!);
+        _selectedFile = result.files.single;
       });
     }
   }
@@ -135,7 +135,7 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
                             labelText: 'Ders Seçin',
                             border: OutlineInputBorder(),
                           ),
-                          value: _selectedCourseId,
+                          initialValue: _selectedCourseId,
                           items: courses.map((course) {
                             return DropdownMenuItem(
                               value: course.id,
@@ -149,7 +149,7 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
                           },
                           validator: (value) =>
                               value == null ? 'Lütfen bir ders seçin' : null,
-                        );
+                          );
                       },
                       loading: () => const Center(
                         child: Padding(
@@ -183,7 +183,7 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
                         labelText: 'İçerik Tipi',
                         border: OutlineInputBorder(),
                       ),
-                      value: _selectedContentType,
+                      initialValue: _selectedContentType,
                       items: ContentType.values.map((type) {
                         return DropdownMenuItem(
                           value: type,
@@ -207,7 +207,7 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
                       label: Text(
                         _selectedFile == null
                             ? 'PDF Dosyası Seç'
-                            : _selectedFile!.path.split('/').last,
+                            : _selectedFile!.name,
                       ),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.all(16),
@@ -216,7 +216,7 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
                     if (_selectedFile != null) ...[
                       const SizedBox(height: 8),
                       Text(
-                        'Seçilen dosya: ${_selectedFile!.path.split('/').last}',
+                        'Seçilen dosya: ${_selectedFile!.name}',
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 12,

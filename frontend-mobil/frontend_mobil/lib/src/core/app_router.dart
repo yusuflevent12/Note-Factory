@@ -27,8 +27,7 @@ final GoRouter appRouter = GoRouter(
       path: '/course/:courseId',
       name: 'course-detail',
       builder: (context, state) {
-        final courseIdStr = state.pathParameters['courseId'];
-        final courseId = courseIdStr != null ? int.tryParse(courseIdStr) ?? 0 : 0;
+        final courseId = state.pathParameters['courseId'] ?? '0';
         return CourseDetailScreen(courseId: courseId);
       },
     ),

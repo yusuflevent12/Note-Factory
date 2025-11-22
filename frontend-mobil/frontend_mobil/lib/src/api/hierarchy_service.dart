@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import '../models/course_model.dart';
 import 'dio_client.dart';
 

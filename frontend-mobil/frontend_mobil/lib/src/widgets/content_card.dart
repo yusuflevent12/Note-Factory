@@ -9,9 +9,9 @@ class ContentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = content.title ?? 'Başlıksız içerik';
+    final title = content.title;
     final description = content.description ?? '';
-    final votes = content.netVotes ?? 0;
+    final votes = content.netVotes;
 
     return ListTile(
       onTap: onTap,
